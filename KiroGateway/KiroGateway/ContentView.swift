@@ -15,9 +15,9 @@ struct ContentView: View {
 
         var icon: String {
             switch self {
-            case .dashboard: return "gauge"
-            case .requestLogs: return "list.bullet.rectangle"
-            case .runLog: return "text.alignleft"
+            case .dashboard: return "square.grid.2x2"
+            case .requestLogs: return "arrow.left.arrow.right"
+            case .runLog: return "terminal"
             case .settings: return "gearshape"
             }
         }
@@ -25,11 +25,9 @@ struct ContentView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // 顶部栏：标题 + 状态 + 标签页
             topBar
             Divider()
 
-            // 内容区
             Group {
                 switch selectedTab {
                 case .dashboard:
@@ -46,16 +44,31 @@ struct ContentView: View {
         }
     }
 
+    // MARK: - Top Bar
+
     private var topBar: some View {
         HStack(spacing: 16) {
-            // 左侧：状态指示 + 标题
-            HStack(spacing: 8) {
-                Circle()
-                    .fill(statusColor)
-                    .frame(width: 8, height: 8)
-                    .shadow(color: statusColor.opacity(0.6), radius: 4)
-                Text("Kiro Gateway")
-                    .font(.system(.body, design: .rounded, weight: .semibold))
+            // 左侧：状态图标 + 标题
+            HStack(spacing: 10) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(statusGradient)
+                        .frame(width: 26, height: 26)
+                    Image(systemName: "bolt.fill")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
+
+                VStack(alignment: .leading, spacing: 0) {
+                    Text("Kiro Gateway")
+                        .font(.system(.body, design: .rounded, weight: .semibold))
+                    if case .error(let msg) = service.status {
+                        Text(msg)
+                            .font(.caption2)
+                            .foregroundStyle(.red)
+                            .lineLimit(1)
+                    }
+                }
             }
 
             // 中间：标签页
@@ -88,8 +101,19 @@ struct ContentView: View {
 
             Spacer()
 
-            // 右侧：启停按钮
-            controlButtons
+            // 右侧：状态标签 + 控制按钮
+            HStack(spacing: 10) {
+                if service.status == .running {
+                    Text("运行中")
+                        .font(.caption2.weight(.medium))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(Color(red: 0.16, green: 0.71, blue: 0.55).opacity(0.12), in: Capsule())
+                        .foregroundStyle(Color(red: 0.16, green: 0.71, blue: 0.55))
+                }
+
+                controlButtons
+            }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
@@ -107,12 +131,17 @@ struct ContentView: View {
                     .font(.caption)
             }
             .buttonStyle(.borderedProminent)
-            .tint(.green)
+            .tint(Color(red: 0.16, green: 0.71, blue: 0.55))
             .controlSize(.small)
 
         case .starting:
-            ProgressView()
-                .controlSize(.small)
+            HStack(spacing: 6) {
+                ProgressView()
+                    .controlSize(.small)
+                Text("启动中…")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
 
         case .running:
             HStack(spacing: 6) {
@@ -136,12 +165,18 @@ struct ContentView: View {
         }
     }
 
-    private var statusColor: Color {
+    // MARK: - Status Styling
+
+    private var statusGradient: LinearGradient {
         switch service.status {
-        case .stopped: return .gray
-        case .starting: return .orange
-        case .running: return .green
-        case .error: return .red
+        case .stopped:
+            return LinearGradient(colors: [.gray.opacity(0.6), .gray.opacity(0.4)], startPoint: .topLeading, endPoint: .bottomTrailing)
+        case .starting:
+            return LinearGradient(colors: [.orange, .yellow], startPoint: .topLeading, endPoint: .bottomTrailing)
+        case .running:
+            return LinearGradient(colors: [Color(red: 0.16, green: 0.71, blue: 0.55), Color(red: 0.12, green: 0.55, blue: 0.65)], startPoint: .topLeading, endPoint: .bottomTrailing)
+        case .error:
+            return LinearGradient(colors: [.red, .orange], startPoint: .topLeading, endPoint: .bottomTrailing)
         }
     }
 }

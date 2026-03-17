@@ -12,7 +12,7 @@ struct KiroGatewayApp: App {
             ContentView()
                 .environmentObject(config)
                 .environmentObject(service)
-                .frame(minWidth: 750, minHeight: 520)
+                .frame(minWidth: 800, minHeight: 520)
                 .onAppear {
                     if service.status == .stopped {
                         service.start()
@@ -20,7 +20,7 @@ struct KiroGatewayApp: App {
                 }
         }
         .windowStyle(.titleBar)
-        .defaultSize(width: 900, height: 640)
+        .defaultSize(width: 960, height: 640)
         .commands {
             CommandGroup(replacing: .newItem) {}
         }

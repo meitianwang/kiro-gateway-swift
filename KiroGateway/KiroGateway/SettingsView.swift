@@ -6,29 +6,27 @@ struct SettingsView: View {
     @EnvironmentObject var service: GatewayService
     @State private var showSaveConfirm = false
 
+    private let teal = Color(red: 0.16, green: 0.71, blue: 0.55)
+
     var body: some View {
         ScrollView {
-            VStack(spacing: 12) {
-                // 凭证（全宽，最重要）
+            VStack(spacing: 16) {
                 credentialsCard
-
-                // 服务器 + 代理 + 超时（一行三列）
                 HStack(alignment: .top, spacing: 12) {
                     serverCard
                     proxyCard
-                    timeoutCard
                 }
-
-                // Reasoning + 其他 + 环境（一行三列）
                 HStack(alignment: .top, spacing: 12) {
+                    timeoutCard
                     reasoningCard
+                }
+                HStack(alignment: .top, spacing: 12) {
                     otherCard
                     environmentCard
                 }
-
                 saveBar
             }
-            .padding(16)
+            .padding(24)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(nsColor: .windowBackgroundColor))
@@ -37,14 +35,11 @@ struct SettingsView: View {
     // MARK: - 凭证
 
     private var credentialsCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Label("凭证", systemImage: "key.fill")
-                .font(.callout.weight(.medium))
-                .foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 14) {
+            sectionHeader("凭证", icon: "key.fill")
 
-            HStack(alignment: .top, spacing: 20) {
-                // 左列：密码 + 认证方式
-                VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .top, spacing: 24) {
+                VStack(alignment: .leading, spacing: 10) {
                     field("API 密码") {
                         SecureField("自定义密码", text: $config.proxyApiKey)
                             .textFieldStyle(.roundedBorder)
@@ -66,8 +61,7 @@ struct SettingsView: View {
                 }
                 .frame(maxWidth: .infinity)
 
-                // 右列：Profile ARN + Region
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 10) {
                     field("Profile ARN") {
                         TextField("arn:aws:codewhisperer:...", text: $config.profileArn)
                             .textFieldStyle(.roundedBorder)
@@ -103,7 +97,7 @@ struct SettingsView: View {
                         .controlSize(.small)
                     if config.credsFileAutoDetected {
                         Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(.green)
+                            .foregroundStyle(teal)
                             .font(.caption2)
                     }
                 }
@@ -132,10 +126,8 @@ struct SettingsView: View {
     // MARK: - 服务器
 
     private var serverCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Label("服务器", systemImage: "server.rack")
-                .font(.callout.weight(.medium))
-                .foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 12) {
+            sectionHeader("服务器", icon: "server.rack")
 
             HStack(spacing: 8) {
                 field("地址") {
@@ -156,6 +148,7 @@ struct SettingsView: View {
                 set: { config.serverHost = $0 ? "0.0.0.0" : "127.0.0.1" }
             ))
             .controlSize(.small)
+            .tint(teal)
         }
         .cardStyle()
     }
@@ -163,10 +156,8 @@ struct SettingsView: View {
     // MARK: - 代理
 
     private var proxyCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Label("代理", systemImage: "network.badge.shield.half.filled")
-                .font(.callout.weight(.medium))
-                .foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 12) {
+            sectionHeader("代理", icon: "network.badge.shield.half.filled")
 
             field("VPN/Proxy URL") {
                 TextField("http://127.0.0.1:7890", text: $config.vpnProxyUrl)
@@ -183,10 +174,8 @@ struct SettingsView: View {
     // MARK: - 超时
 
     private var timeoutCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Label("超时（秒）", systemImage: "clock")
-                .font(.callout.weight(.medium))
-                .foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 12) {
+            sectionHeader("超时（秒）", icon: "clock")
 
             HStack(spacing: 8) {
                 field("首 Token") {
@@ -215,13 +204,12 @@ struct SettingsView: View {
     // MARK: - Reasoning
 
     private var reasoningCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Label("Fake Reasoning", systemImage: "brain")
-                .font(.callout.weight(.medium))
-                .foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 12) {
+            sectionHeader("Fake Reasoning", icon: "brain")
 
             Toggle("启用", isOn: $config.fakeReasoning)
                 .controlSize(.small)
+                .tint(teal)
 
             if config.fakeReasoning {
                 HStack(spacing: 8) {
@@ -250,13 +238,12 @@ struct SettingsView: View {
     // MARK: - 其他
 
     private var otherCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Label("其他", systemImage: "slider.horizontal.3")
-                .font(.callout.weight(.medium))
-                .foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 12) {
+            sectionHeader("其他", icon: "slider.horizontal.3")
 
             Toggle("截断恢复", isOn: $config.truncationRecovery)
                 .controlSize(.small)
+                .tint(teal)
 
             HStack(spacing: 8) {
                 field("日志级别") {
@@ -285,10 +272,8 @@ struct SettingsView: View {
     // MARK: - 环境
 
     private var environmentCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Label("运行环境", systemImage: "cpu")
-                .font(.callout.weight(.medium))
-                .foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 12) {
+            sectionHeader("运行环境", icon: "cpu")
 
             HStack {
                 Text("Python")
@@ -300,7 +285,7 @@ struct SettingsView: View {
                         .foregroundStyle(.tertiary)
                         .lineLimit(1)
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.green)
+                        .foregroundStyle(teal)
                         .font(.caption2)
                 } else {
                     Text("未检测到")
@@ -321,7 +306,7 @@ struct SettingsView: View {
             if showSaveConfirm {
                 Label("已保存", systemImage: "checkmark.circle.fill")
                     .font(.caption)
-                    .foregroundStyle(.green)
+                    .foregroundStyle(teal)
                     .transition(.opacity)
             }
             Spacer()
@@ -346,16 +331,27 @@ struct SettingsView: View {
             }
             .controlSize(.small)
             .buttonStyle(.borderedProminent)
+            .tint(teal)
         }
     }
 
     // MARK: - Helpers
 
+    private func sectionHeader(_ title: String, icon: String) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: icon)
+                .font(.caption)
+                .foregroundStyle(teal)
+            Text(title)
+                .font(.callout.weight(.medium))
+        }
+    }
+
     private func field<Content: View>(_ label: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 3) {
             Text(label)
                 .font(.caption2)
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(.secondary)
             content()
         }
     }

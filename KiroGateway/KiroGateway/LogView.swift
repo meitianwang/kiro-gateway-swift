@@ -6,18 +6,29 @@ struct LogView: View {
     @State private var autoScroll = true
     @State private var searchText = ""
 
+    private let teal = Color(red: 0.16, green: 0.71, blue: 0.55)
+
     var body: some View {
         VStack(spacing: 0) {
             // 工具栏
             HStack(spacing: 10) {
-                Image(systemName: "magnifyingglass")
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
-                TextField("搜索日志…", text: $searchText)
-                    .textFieldStyle(.plain)
-                    .font(.callout)
+                HStack(spacing: 6) {
+                    Image(systemName: "magnifyingglass")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                    TextField("搜索日志…", text: $searchText)
+                        .textFieldStyle(.plain)
+                        .font(.callout)
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 5)
+                .background(Color(nsColor: .controlBackgroundColor).opacity(0.5), in: RoundedRectangle(cornerRadius: 6))
 
                 Spacer()
+
+                Text("\(filteredLogs.count) 行")
+                    .font(.caption2)
+                    .foregroundStyle(.quaternary)
 
                 Toggle(isOn: $autoScroll) {
                     Text("自动滚动")
@@ -25,6 +36,7 @@ struct LogView: View {
                 }
                 .toggleStyle(.switch)
                 .controlSize(.mini)
+                .tint(teal)
 
                 Button {
                     service.clearLogs()
@@ -36,30 +48,43 @@ struct LogView: View {
                 .buttonStyle(.borderless)
                 .help("清空")
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 8)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
             .background(.bar)
 
             Divider()
 
-            // 日志内容
+            // Dark terminal-style log area
             ScrollViewReader { proxy in
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 0) {
                         ForEach(Array(filteredLogs.enumerated()), id: \.offset) { index, line in
-                            Text(line)
-                                .font(.system(.caption, design: .monospaced))
-                                .foregroundStyle(logColor(for: line))
-                                .textSelection(.enabled)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.horizontal, 14)
-                                .padding(.vertical, 2)
-                                .id(index)
+                            HStack(alignment: .top, spacing: 0) {
+                                Text("\(index + 1)")
+                                    .font(.system(.caption2, design: .monospaced))
+                                    .foregroundStyle(Color.white.opacity(0.2))
+                                    .frame(width: 36, alignment: .trailing)
+                                    .padding(.trailing, 10)
+
+                                Text(line)
+                                    .font(.system(.caption, design: .monospaced))
+                                    .foregroundStyle(logColor(for: line))
+                                    .textSelection(.enabled)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 2)
+                            .background(
+                                index % 2 == 0
+                                    ? Color.clear
+                                    : Color.white.opacity(0.02)
+                            )
+                            .id(index)
                         }
                     }
-                    .padding(.vertical, 4)
+                    .padding(.vertical, 6)
                 }
-                .background(Color(nsColor: .textBackgroundColor))
+                .background(Color(red: 0.11, green: 0.12, blue: 0.14))
                 .onChange(of: service.logs.count) { _ in
                     if autoScroll, let last = filteredLogs.indices.last {
                         withAnimation(.easeOut(duration: 0.1)) {
@@ -79,10 +104,10 @@ struct LogView: View {
     }
 
     private func logColor(for line: String) -> Color {
-        if line.contains("ERROR") || line.contains("❌") { return .red }
-        if line.contains("WARNING") || line.contains("⚠️") { return .orange }
-        if line.contains("✅") || line.contains("SUCCESS") { return .green }
-        if line.contains("DEBUG") { return .secondary }
-        return .primary
+        if line.contains("ERROR") || line.contains("❌") { return Color(red: 0.95, green: 0.45, blue: 0.45) }
+        if line.contains("WARNING") || line.contains("⚠️") { return Color(red: 0.95, green: 0.75, blue: 0.35) }
+        if line.contains("✅") || line.contains("SUCCESS") { return Color(red: 0.38, green: 0.82, blue: 0.62) }
+        if line.contains("DEBUG") { return Color.white.opacity(0.4) }
+        return Color.white.opacity(0.7)
     }
 }

@@ -78,10 +78,44 @@ cp -R "$APP_SRC" "$DIST_DIR/"
 
 APP_SIZE=$(du -sh "$DIST_DIR/KiroGateway.app" | cut -f1)
 
+echo -e "${GREEN}   ✅ App 已生成${NC} ($APP_SIZE)"
+
+# 4. 创建 DMG 安装包
+echo -e "${CYAN}[4/4] 创建 DMG 安装包...${NC}"
+
+DMG_NAME="KiroGateway.dmg"
+DMG_PATH="$DIST_DIR/$DMG_NAME"
+DMG_TEMP="$BUILD_DIR/dmg_staging"
+
+rm -rf "$DMG_TEMP" "$DMG_PATH"
+mkdir -p "$DMG_TEMP"
+
+# 拷贝 app 到临时目录
+cp -R "$DIST_DIR/KiroGateway.app" "$DMG_TEMP/"
+
+# 创建 Applications 快捷方式
+ln -s /Applications "$DMG_TEMP/Applications"
+
+# 创建临时 DMG
+hdiutil create \
+    -volname "Kiro Gateway" \
+    -srcfolder "$DMG_TEMP" \
+    -ov \
+    -format UDBZ \
+    "$DMG_PATH" \
+    -quiet 2>&1
+
+rm -rf "$DMG_TEMP"
+
+DMG_SIZE=$(du -sh "$DMG_PATH" | cut -f1)
+
+echo -e "${GREEN}   ✅ DMG 已生成${NC} ($DMG_SIZE)"
+
 echo ""
 echo -e "${GREEN}✅ 构建完成！${NC}"
-echo -e "   📦 ${CYAN}$DIST_DIR/KiroGateway.app${NC} ($APP_SIZE)"
+echo -e "   📦 App:  ${CYAN}$DIST_DIR/KiroGateway.app${NC} ($APP_SIZE)"
+echo -e "   💿 DMG:  ${CYAN}$DMG_PATH${NC} ($DMG_SIZE)"
 echo -e "   Python 依赖将在首次启动时自动安装"
 echo ""
 echo -e "   运行:  ${YELLOW}open \"$DIST_DIR/KiroGateway.app\"${NC}"
-echo -e "   安装:  ${YELLOW}cp -R \"$DIST_DIR/KiroGateway.app\" /Applications/${NC}"
+echo -e "   安装:  ${YELLOW}open \"$DMG_PATH\"${NC}  → 拖拽到 Applications"
