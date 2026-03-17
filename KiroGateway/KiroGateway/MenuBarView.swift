@@ -61,25 +61,6 @@ struct MenuBarView: View {
             Divider()
                 .padding(.vertical, 2)
 
-            if service.status == .running {
-                menuButton("复制 API 地址", icon: "doc.on.doc") {
-                    NSPasteboard.general.clearContents()
-                    NSPasteboard.general.setString(
-                        "\(config.baseURL)/v1/chat/completions",
-                        forType: .string
-                    )
-                }
-
-                menuButton("在浏览器中打开", icon: "safari") {
-                    if let url = URL(string: "\(config.baseURL)/docs") {
-                        NSWorkspace.shared.open(url)
-                    }
-                }
-
-                Divider()
-                    .padding(.vertical, 2)
-            }
-
             menuButton("打开主窗口", icon: "macwindow") {
                 NSApp.activate(ignoringOtherApps: true)
                 if let window = NSApp.windows.first(where: { $0.title.contains("Kiro") || $0.isKeyWindow }) {

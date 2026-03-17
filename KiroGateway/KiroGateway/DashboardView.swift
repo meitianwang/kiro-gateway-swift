@@ -17,6 +17,8 @@ struct DashboardView: View {
     @State private var claudeHaikuModel: String = ""
     @State private var claudeConfigSaving = false
     @State private var claudeConfigSaved = false
+    @State private var claudeConfigResetting = false
+    @State private var claudeConfigReset = false
 
     enum APIProtocol: String, CaseIterable {
         case openai = "OpenAI"
@@ -186,6 +188,23 @@ struct DashboardView: View {
                 modelPicker("Haiku", selection: $claudeHaikuModel)
 
                 Spacer()
+
+                Button {
+                    resetClaudeConfig()
+                } label: {
+                    if claudeConfigResetting {
+                        ProgressView().controlSize(.mini)
+                    } else if claudeConfigReset {
+                        Label("已还原", systemImage: "checkmark")
+                            .font(.caption)
+                    } else {
+                        Label("还原配置", systemImage: "arrow.counterclockwise")
+                            .font(.caption)
+                    }
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .disabled(claudeConfigResetting)
 
                 Button {
                     saveClaudeConfig()
@@ -487,6 +506,31 @@ struct DashboardView: View {
         claudeConfigSaving = false
         claudeConfigSaved = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) { claudeConfigSaved = false }
+    }
+
+    private func resetClaudeConfig() {
+        claudeConfigResetting = true
+        let url = Self.claudeSettingsURL
+        let dir = url.deletingLastPathComponent()
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+
+        let defaultSettings: [String: Any] = [
+            "model": "opus",
+            "skipDangerousModePermissionPrompt": true
+        ]
+
+        if let data = try? JSONSerialization.data(withJSONObject: defaultSettings, options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]) {
+            try? data.write(to: url)
+        }
+
+        // Clear local state
+        claudeOpusModel = ""
+        claudeSonnetModel = ""
+        claudeHaikuModel = ""
+
+        claudeConfigResetting = false
+        claudeConfigReset = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { claudeConfigReset = false }
     }
 
     // MARK: - Helpers

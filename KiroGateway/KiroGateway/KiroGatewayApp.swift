@@ -19,7 +19,7 @@ struct KiroGatewayApp: App {
                     }
                 }
         }
-        .windowStyle(.titleBar)
+        .windowStyle(.hiddenTitleBar)
         .defaultSize(width: 960, height: 640)
         .commands {
             CommandGroup(replacing: .newItem) {}
