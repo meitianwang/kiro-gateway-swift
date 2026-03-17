@@ -21,6 +21,10 @@ build/
 debug_logs*/
 debug*.json
 
+# Server logs and PID
+logs/
+.kiro-gateway.pid
+
 # Project-specific
 _notes/
 requests/
@@ -29,3 +33,7 @@ requests/
 .pytest_cache/
 .coverage
 htmlcov/
+
+# macOS app build artifacts
+KiroGateway/.build/
+KiroGateway/dist/

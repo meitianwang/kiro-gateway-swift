@@ -26,6 +26,7 @@ Reference: https://docs.anthropic.com/en/api/messages
 """
 
 import json
+import time
 from typing import Optional
 
 import httpx
@@ -142,6 +143,8 @@ async def messages(
         HTTPException: On validation or API errors
     """
     logger.info(f"Request to /v1/messages (model={request_data.model}, stream={request_data.stream})")
+    
+    _request_start = time.monotonic()
     
     if anthropic_version:
         logger.debug(f"Anthropic-Version header: {anthropic_version}")
@@ -346,6 +349,11 @@ async def messages(
                 debug_logger.flush_on_error(response.status_code, error_message)
             
             # Return error in Anthropic format
+            _duration_ms = (time.monotonic() - _request_start) * 1000
+            logger.info(
+                f"[GATEWAY_REQUEST] method=POST path=/v1/messages "
+                f"status={response.status_code} model={request_data.model} duration={_duration_ms:.0f}ms"
+            )
             return JSONResponse(
                 status_code=response.status_code,
                 content={
@@ -384,6 +392,12 @@ async def messages(
                         pass
                 finally:
                     await http_client.close()
+                    _duration_ms = (time.monotonic() - _request_start) * 1000
+                    _status = 500 if streaming_error else 200
+                    logger.info(
+                        f"[GATEWAY_REQUEST] method=POST path=/v1/messages "
+                        f"status={_status} model={request_data.model} duration={_duration_ms:.0f}ms"
+                    )
                     if streaming_error:
                         error_type = type(streaming_error).__name__
                         error_msg = str(streaming_error) if str(streaming_error) else "(empty message)"
@@ -420,6 +434,11 @@ async def messages(
             
             await http_client.close()
             
+            _duration_ms = (time.monotonic() - _request_start) * 1000
+            logger.info(
+                f"[GATEWAY_REQUEST] method=POST path=/v1/messages "
+                f"status=200 model={request_data.model} duration={_duration_ms:.0f}ms"
+            )
             logger.info(f"HTTP 200 - POST /v1/messages (non-streaming) - completed")
             
             if debug_logger:

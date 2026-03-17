@@ -31,7 +31,12 @@ from typing import Dict, List, Optional
 from dotenv import load_dotenv
 
 # Load environment variables
-load_dotenv()
+# DOTENV_PATH allows external launchers (e.g. macOS app) to specify a custom .env location
+_dotenv_path = os.environ.get("DOTENV_PATH")
+if _dotenv_path and Path(_dotenv_path).exists():
+    load_dotenv(_dotenv_path)
+else:
+    load_dotenv()
 
 
 def _get_raw_env_value(var_name: str, env_file: str = ".env") -> Optional[str]:

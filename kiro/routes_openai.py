@@ -27,6 +27,7 @@ Contains all API endpoints:
 """
 
 import json
+import time
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, Security
@@ -171,6 +172,8 @@ async def chat_completions(request: Request, request_data: ChatCompletionRequest
     """
     logger.info(f"Request to /v1/chat/completions (model={request_data.model}, stream={request_data.stream})")
     
+    _request_start = time.monotonic()
+    
     auth_manager: KiroAuthManager = request.app.state.auth_manager
     model_cache: ModelInfoCache = request.app.state.model_cache
     
@@ -313,6 +316,11 @@ async def chat_completions(request: Request, request_data: ChatCompletionRequest
                 debug_logger.flush_on_error(response.status_code, error_message)
             
             # Return error in OpenAI API format
+            _duration_ms = (time.monotonic() - _request_start) * 1000
+            logger.info(
+                f"[GATEWAY_REQUEST] method=POST path=/v1/chat/completions "
+                f"status={response.status_code} model={request_data.model} duration={_duration_ms:.0f}ms"
+            )
             return JSONResponse(
                 status_code=response.status_code,
                 content={
@@ -360,6 +368,12 @@ async def chat_completions(request: Request, request_data: ChatCompletionRequest
                     raise
                 finally:
                     await http_client.close()
+                    _duration_ms = (time.monotonic() - _request_start) * 1000
+                    _status = 500 if streaming_error else 200
+                    logger.info(
+                        f"[GATEWAY_REQUEST] method=POST path=/v1/chat/completions "
+                        f"status={_status} model={request_data.model} duration={_duration_ms:.0f}ms"
+                    )
                     # Log access log for streaming (success or error)
                     if streaming_error:
                         error_type = type(streaming_error).__name__
@@ -392,6 +406,12 @@ async def chat_completions(request: Request, request_data: ChatCompletionRequest
             )
             
             await http_client.close()
+            
+            _duration_ms = (time.monotonic() - _request_start) * 1000
+            logger.info(
+                f"[GATEWAY_REQUEST] method=POST path=/v1/chat/completions "
+                f"status=200 model={request_data.model} duration={_duration_ms:.0f}ms"
+            )
             
             # Log access log for non-streaming success
             logger.info(f"HTTP 200 - POST /v1/chat/completions (non-streaming) - completed")
