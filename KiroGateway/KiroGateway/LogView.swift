@@ -9,40 +9,51 @@ struct LogView: View {
     var body: some View {
         VStack(spacing: 0) {
             // 工具栏
-            HStack {
+            HStack(spacing: 10) {
+                Image(systemName: "magnifyingglass")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
                 TextField("搜索日志…", text: $searchText)
-                    .textFieldStyle(.roundedBorder)
-                    .frame(maxWidth: 300)
+                    .textFieldStyle(.plain)
+                    .font(.callout)
 
                 Spacer()
 
-                Toggle("自动滚动", isOn: $autoScroll)
-                    .toggleStyle(.switch)
-                    .controlSize(.small)
+                Toggle(isOn: $autoScroll) {
+                    Text("自动滚动")
+                        .font(.caption)
+                }
+                .toggleStyle(.switch)
+                .controlSize(.mini)
 
                 Button {
                     service.clearLogs()
                 } label: {
                     Image(systemName: "trash")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
-                .help("清空日志")
+                .buttonStyle(.borderless)
+                .help("清空")
             }
-            .padding(8)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 8)
+            .background(.bar)
 
             Divider()
 
             // 日志内容
             ScrollViewReader { proxy in
                 ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 1) {
+                    LazyVStack(alignment: .leading, spacing: 0) {
                         ForEach(Array(filteredLogs.enumerated()), id: \.offset) { index, line in
                             Text(line)
                                 .font(.system(.caption, design: .monospaced))
                                 .foregroundStyle(logColor(for: line))
                                 .textSelection(.enabled)
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 1)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 2)
                                 .id(index)
                         }
                     }
@@ -51,7 +62,7 @@ struct LogView: View {
                 .background(Color(nsColor: .textBackgroundColor))
                 .onChange(of: service.logs.count) { _ in
                     if autoScroll, let last = filteredLogs.indices.last {
-                        withAnimation {
+                        withAnimation(.easeOut(duration: 0.1)) {
                             proxy.scrollTo(last, anchor: .bottom)
                         }
                     }

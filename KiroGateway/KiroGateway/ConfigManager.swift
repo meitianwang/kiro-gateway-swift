@@ -35,7 +35,7 @@ final class ConfigManager: ObservableObject {
 
     // 服务器
     @Published var serverHost: String = "127.0.0.1"
-    @Published var serverPort: String = "8000"
+    @Published var serverPort: String = "9001"
 
     // 代理
     @Published var vpnProxyUrl: String = ""
@@ -121,7 +121,7 @@ final class ConfigManager: ObservableObject {
         profileArn = values["PROFILE_ARN"] ?? ""
         kiroRegion = values["KIRO_REGION"] ?? "us-east-1"
         serverHost = values["SERVER_HOST"] ?? "127.0.0.1"
-        serverPort = values["SERVER_PORT"] ?? "8000"
+        serverPort = values["SERVER_PORT"] ?? "9001"
         vpnProxyUrl = values["VPN_PROXY_URL"] ?? ""
         firstTokenTimeout = values["FIRST_TOKEN_TIMEOUT"] ?? "15"
         firstTokenMaxRetries = values["FIRST_TOKEN_MAX_RETRIES"] ?? "3"
@@ -224,7 +224,7 @@ final class ConfigManager: ObservableObject {
     }
 
     var port: Int {
-        Int(serverPort) ?? 8000
+        Int(serverPort) ?? 9001
     }
 
     var baseURL: String {
