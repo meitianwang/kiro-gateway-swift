@@ -11,7 +11,7 @@
 
 通过 Kiro 使用 Claude 模型，兼容 Claude Code、Cursor、Cline、Roo Code、Kilo Code、OpenCode、Codex、Continue、LangChain 以及任何 OpenAI/Anthropic 兼容工具。
 
-[下载 macOS 应用](https://github.com/Jwadow/kiro-gateway/releases/latest) · [快速开始](#-快速开始) · [配置说明](#%EF%B8%8F-配置说明)
+[下载 macOS 应用](https://github.com/meitianwang/kiro-gateway-swift/releases/latest) · [快速开始](#-快速开始) · [配置说明](#%EF%B8%8F-配置说明)
 
 [English](README.md) | 中文
 
@@ -29,7 +29,7 @@
 - 一键配置 Claude Code（`~/.claude/settings.json`）
 - 浏览可用模型，复制 cURL 示例
 
-从 [Releases](https://github.com/Jwadow/kiro-gateway/releases/latest) 下载 `.dmg`，拖入应用程序文件夹即可使用。
+从 [Releases](https://github.com/meitianwang/kiro-gateway-swift/releases/latest) 下载 `.dmg`，拖入应用程序文件夹即可使用。
 
 ---
 
@@ -74,7 +74,7 @@
 
 ### macOS 应用（推荐）
 
-1. 从 [Releases](https://github.com/Jwadow/kiro-gateway/releases/latest) 下载 `KiroGateway.dmg`
+1. 从 [Releases](https://github.com/meitianwang/kiro-gateway-swift/releases/latest) 下载 `KiroGateway.dmg`
 2. 拖入应用程序文件夹
 3. 启动后在设置中配置凭证
 4. 点击启动
@@ -82,7 +82,7 @@
 ### Python
 
 ```bash
-git clone https://github.com/Jwadow/kiro-gateway.git
+git clone https://github.com/meitianwang/kiro-gateway-swift.git
 cd kiro-gateway
 pip install -r requirements.txt
 cp .env.example .env
@@ -95,7 +95,7 @@ python main.py
 ### Docker
 
 ```bash
-git clone https://github.com/Jwadow/kiro-gateway.git
+git clone https://github.com/meitianwang/kiro-gateway-swift.git
 cd kiro-gateway
 cp .env.example .env
 # 编辑 .env
@@ -111,7 +111,7 @@ docker run -d \
   -e PROXY_API_KEY="your-password" \
   -e REFRESH_TOKEN="your_refresh_token" \
   --name kiro-gateway \
-  ghcr.io/jwadow/kiro-gateway:latest
+  ghcr.io/meitianwang/kiro-gateway-swift:latest
 ```
 
 </details>
@@ -338,6 +338,6 @@ VPN_PROXY_URL=http://user:pass@proxy.company.com:8080
 
 <div align="center">
 
-Made with ❤️ by [@Jwadow](https://github.com/jwadow)
+Made with ❤️ by [@meitianwang](https://github.com/meitianwang)
 
 </div>

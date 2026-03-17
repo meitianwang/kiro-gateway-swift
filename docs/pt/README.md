@@ -6,7 +6,7 @@
 
 [🇬🇧 English](../../README.md) • [🇷🇺 Русский](../ru/README.md) • [🇨🇳 中文](../zh/README.md) • [🇪🇸 Español](../es/README.md) • [🇮🇩 Indonesia](../id/README.md) • [🇯🇵 日本語](../ja/README.md) • [🇰🇷 한국어](../ko/README.md)
 
-Feito com ❤️ por [@Jwadow](https://github.com/jwadow)
+Feito com ❤️ por [@meitianwang](https://github.com/meitianwang)
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
@@ -80,7 +80,7 @@ Feito com ❤️ por [@Jwadow](https://github.com/jwadow)
 
 ```bash
 # Clone o repositório (requer Git)
-git clone https://github.com/Jwadow/kiro-gateway.git
+git clone https://github.com/meitianwang/kiro-gateway-swift.git
 cd kiro-gateway
 
 # Ou baixe o ZIP: Code → Download ZIP → extraia → abra a pasta kiro-gateway
@@ -264,7 +264,7 @@ Se você precisar extrair manualmente o refresh token (por exemplo, para depura�
 
 ```bash
 # 1. Clone e configure
-git clone https://github.com/Jwadow/kiro-gateway.git
+git clone https://github.com/meitianwang/kiro-gateway-swift.git
 cd kiro-gateway
 cp .env.example .env
 # Edite .env com suas credenciais
@@ -288,7 +288,7 @@ docker run -d \
   -e PROXY_API_KEY="my-super-secret-password-123" \
   -e REFRESH_TOKEN="your_refresh_token" \
   --name kiro-gateway \
-  ghcr.io/jwadow/kiro-gateway:latest
+  ghcr.io/meitianwang/kiro-gateway-swift:latest
 ```
 
 </details>
@@ -304,7 +304,7 @@ docker run -d \
   -e KIRO_CREDS_FILE=/home/kiro/.aws/sso/cache/kiro-auth-token.json \
   -e PROXY_API_KEY="my-super-secret-password-123" \
   --name kiro-gateway \
-  ghcr.io/jwadow/kiro-gateway:latest
+  ghcr.io/meitianwang/kiro-gateway-swift:latest
 ```
 
 **Windows (PowerShell):**
@@ -315,7 +315,7 @@ docker run -d `
   -e KIRO_CREDS_FILE=/home/kiro/.aws/sso/cache/kiro-auth-token.json `
   -e PROXY_API_KEY="my-super-secret-password-123" `
   --name kiro-gateway `
-  ghcr.io/jwadow/kiro-gateway:latest
+  ghcr.io/meitianwang/kiro-gateway-swift:latest
 ```
 
 </details>
@@ -324,7 +324,7 @@ docker run -d `
 <summary>🔹 Usando Arquivo .env</summary>
 
 ```bash
-docker run -d -p 8000:8000 --env-file .env --name kiro-gateway ghcr.io/jwadow/kiro-gateway:latest
+docker run -d -p 8000:8000 --env-file .env --name kiro-gateway ghcr.io/meitianwang/kiro-gateway-swift:latest
 ```
 
 </details>
@@ -717,7 +717,7 @@ Cada contribuição ajuda a manter este projeto vivo e crescendo
 
 ### 🤑 Doar
 
-[**☕ Doação Única**](https://app.lava.top/jwadow?tabId=donate) &nbsp;•&nbsp; [**💎 Apoio Mensal**](https://app.lava.top/jwadow?tabId=subscriptions)
+[**☕ Doação Única**](https://app.lava.top/meitianwang?tabId=donate) &nbsp;•&nbsp; [**💎 Apoio Mensal**](https://app.lava.top/meitianwang?tabId=subscriptions)
 
 <br>
 

@@ -6,7 +6,7 @@
 
 [🇬🇧 English](../../README.md) • [🇷🇺 Русский](../ru/README.md) • [🇨🇳 中文](../zh/README.md) • [🇪🇸 Español](../es/README.md) • [🇧🇷 Português](../pt/README.md) • [🇯🇵 日本語](../ja/README.md) • [🇰🇷 한국어](../ko/README.md)
 
-Dibuat dengan ❤️ oleh [@Jwadow](https://github.com/jwadow)
+Dibuat dengan ❤️ oleh [@meitianwang](https://github.com/meitianwang)
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
@@ -80,7 +80,7 @@ Dibuat dengan ❤️ oleh [@Jwadow](https://github.com/jwadow)
 
 ```bash
 # Clone repositori (memerlukan Git)
-git clone https://github.com/Jwadow/kiro-gateway.git
+git clone https://github.com/meitianwang/kiro-gateway-swift.git
 cd kiro-gateway
 
 # Atau unduh ZIP: Code → Download ZIP → ekstrak → buka folder kiro-gateway
@@ -264,7 +264,7 @@ Jika Anda perlu mengekstrak refresh token secara manual (misalnya, untuk debuggi
 
 ```bash
 # 1. Clone dan konfigurasi
-git clone https://github.com/Jwadow/kiro-gateway.git
+git clone https://github.com/meitianwang/kiro-gateway-swift.git
 cd kiro-gateway
 cp .env.example .env
 # Edit .env dengan kredensial Anda
@@ -288,7 +288,7 @@ docker run -d \
   -e PROXY_API_KEY="my-super-secret-password-123" \
   -e REFRESH_TOKEN="your_refresh_token" \
   --name kiro-gateway \
-  ghcr.io/jwadow/kiro-gateway:latest
+  ghcr.io/meitianwang/kiro-gateway-swift:latest
 ```
 
 </details>
@@ -304,7 +304,7 @@ docker run -d \
   -e KIRO_CREDS_FILE=/home/kiro/.aws/sso/cache/kiro-auth-token.json \
   -e PROXY_API_KEY="my-super-secret-password-123" \
   --name kiro-gateway \
-  ghcr.io/jwadow/kiro-gateway:latest
+  ghcr.io/meitianwang/kiro-gateway-swift:latest
 ```
 
 **Windows (PowerShell):**
@@ -315,7 +315,7 @@ docker run -d `
   -e KIRO_CREDS_FILE=/home/kiro/.aws/sso/cache/kiro-auth-token.json `
   -e PROXY_API_KEY="my-super-secret-password-123" `
   --name kiro-gateway `
-  ghcr.io/jwadow/kiro-gateway:latest
+  ghcr.io/meitianwang/kiro-gateway-swift:latest
 ```
 
 </details>
@@ -324,7 +324,7 @@ docker run -d `
 <summary>🔹 Menggunakan File .env</summary>
 
 ```bash
-docker run -d -p 8000:8000 --env-file .env --name kiro-gateway ghcr.io/jwadow/kiro-gateway:latest
+docker run -d -p 8000:8000 --env-file .env --name kiro-gateway ghcr.io/meitianwang/kiro-gateway-swift:latest
 ```
 
 </details>
@@ -717,7 +717,7 @@ Setiap kontribusi membantu menjaga proyek ini tetap hidup dan berkembang
 
 ### 🤑 Donasi
 
-[**☕ Donasi Sekali**](https://app.lava.top/jwadow?tabId=donate) &nbsp;•&nbsp; [**💎 Dukungan Bulanan**](https://app.lava.top/jwadow?tabId=subscriptions)
+[**☕ Donasi Sekali**](https://app.lava.top/meitianwang?tabId=donate) &nbsp;•&nbsp; [**💎 Dukungan Bulanan**](https://app.lava.top/meitianwang?tabId=subscriptions)
 
 <br>
 

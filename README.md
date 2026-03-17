@@ -11,7 +11,7 @@
 
 Use Claude models from Kiro with Claude Code, Cursor, Cline, Roo Code, Kilo Code, OpenCode, Codex, Continue, LangChain, and any OpenAI/Anthropic compatible tool.
 
-[Download macOS App](https://github.com/Jwadow/kiro-gateway/releases/latest) · [Quick Start](#-quick-start) · [Configuration](#%EF%B8%8F-configuration)
+[Download macOS App](https://github.com/meitianwang/kiro-gateway-swift/releases/latest) · [Quick Start](#-quick-start) · [Configuration](#%EF%B8%8F-configuration)
 
 English | [中文](README_CN.md)
 
@@ -29,7 +29,7 @@ Native SwiftUI app with one-click setup. No terminal needed.
 - One-click Claude Code config (`~/.claude/settings.json`)
 - Browse available models, copy cURL examples
 
-Download the `.dmg` from [Releases](https://github.com/Jwadow/kiro-gateway/releases/latest), drag to Applications, and launch.
+Download the `.dmg` from [Releases](https://github.com/meitianwang/kiro-gateway-swift/releases/latest), drag to Applications, and launch.
 
 ---
 
@@ -74,7 +74,7 @@ Smart model resolution: `claude-sonnet-4-5`, `claude-sonnet-4.5`, `claude-sonnet
 
 ### macOS App (Recommended)
 
-1. Download `KiroGateway.dmg` from [Releases](https://github.com/Jwadow/kiro-gateway/releases/latest)
+1. Download `KiroGateway.dmg` from [Releases](https://github.com/meitianwang/kiro-gateway-swift/releases/latest)
 2. Drag to Applications
 3. Launch, configure credentials in Settings
 4. Click Start
@@ -82,7 +82,7 @@ Smart model resolution: `claude-sonnet-4-5`, `claude-sonnet-4.5`, `claude-sonnet
 ### Python
 
 ```bash
-git clone https://github.com/Jwadow/kiro-gateway.git
+git clone https://github.com/meitianwang/kiro-gateway-swift.git
 cd kiro-gateway
 pip install -r requirements.txt
 cp .env.example .env
@@ -95,7 +95,7 @@ Server starts at `http://localhost:9001` by default.
 ### Docker
 
 ```bash
-git clone https://github.com/Jwadow/kiro-gateway.git
+git clone https://github.com/meitianwang/kiro-gateway-swift.git
 cd kiro-gateway
 cp .env.example .env
 # Edit .env
@@ -111,7 +111,7 @@ docker run -d \
   -e PROXY_API_KEY="your-password" \
   -e REFRESH_TOKEN="your_refresh_token" \
   --name kiro-gateway \
-  ghcr.io/jwadow/kiro-gateway:latest
+  ghcr.io/meitianwang/kiro-gateway-swift:latest
 ```
 
 </details>
@@ -338,6 +338,6 @@ Not affiliated with Amazon Web Services, Anthropic, or Kiro IDE. Use at your own
 
 <div align="center">
 
-Made with ❤️ by [@Jwadow](https://github.com/jwadow)
+Made with ❤️ by [@meitianwang](https://github.com/meitianwang)
 
 </div>
