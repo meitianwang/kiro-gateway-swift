@@ -97,10 +97,15 @@ struct LogView: View {
     }
 
     private var filteredLogs: [String] {
-        if searchText.isEmpty { return service.logs }
-        return service.logs.filter {
-            $0.localizedCaseInsensitiveContains(searchText)
+        var result = service.logs.filter {
+            !$0.localizedCaseInsensitiveContains("health")
         }
+        if !searchText.isEmpty {
+            result = result.filter {
+                $0.localizedCaseInsensitiveContains(searchText)
+            }
+        }
+        return result
     }
 
     private func logColor(for line: String) -> Color {

@@ -42,6 +42,7 @@ struct ContentView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+        .navigationTitle("")
     }
 
     // MARK: - Top Bar
