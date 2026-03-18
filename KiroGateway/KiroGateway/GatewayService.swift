@@ -89,9 +89,11 @@ final class GatewayService: ObservableObject {
             .appendingPathComponent("requirements.txt").path
     }
 
-    /// venv 是否已就绪
+    /// venv 是否已就绪（python 可执行 + 核心依赖已安装）
     var isVenvReady: Bool {
-        FileManager.default.isExecutableFile(atPath: venvPython)
+        guard FileManager.default.isExecutableFile(atPath: venvPython) else { return false }
+        let result = shell("\(venvPython) -c \"import httpx, fastapi; print('ok')\" 2>&1")
+        return result?.trimmingCharacters(in: .whitespacesAndNewlines) == "ok"
     }
 
     var isGatewayAvailable: Bool {
