@@ -245,6 +245,7 @@ final class GatewayService: ObservableObject {
 
         var env = ProcessInfo.processInfo.environment
         env["DOTENV_PATH"] = ConfigManager.envFileURL.path
+        env["DEBUG_DIR"] = ConfigManager.configDir.appendingPathComponent("debug_logs").path
         proc.environment = env
 
         let outPipe = Pipe()
