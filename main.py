@@ -471,6 +471,26 @@ app.include_router(anthropic_router)
 # Claude Code client config: /claude-config
 app.include_router(claude_config_router)
 
+# Request history API for macOS app
+from kiro.request_history import request_history
+
+@app.get("/request-history/{rid}")
+async def get_request_detail(rid: str):
+    entry = request_history.get(rid)
+    if not entry:
+        return JSONResponse(status_code=404, content={"error": "not found"})
+    # Remove large fields for JSON response
+    entry.pop("request_body", None)
+    entry.pop("kiro_request_body", None)
+    return entry
+
+@app.get("/request-history/{rid}/full")
+async def get_request_full(rid: str):
+    entry = request_history.get_full_request(rid)
+    if not entry:
+        return JSONResponse(status_code=404, content={"error": "not found"})
+    return entry
+
 
 # --- Uvicorn log config ---
 # Minimal configuration for redirecting uvicorn logs to loguru.

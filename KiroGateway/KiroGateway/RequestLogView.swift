@@ -2,11 +2,15 @@ import SwiftUI
 
 struct RequestLogView: View {
 
+    @EnvironmentObject var config: ConfigManager
     @EnvironmentObject var service: GatewayService
 
     @State private var searchText = ""
     @State private var selectedStatus: StatusFilter = .all
     @State private var hoveredRow: UUID?
+    @State private var expandedRow: UUID?
+    @State private var detailData: RequestDetail?
+    @State private var detailLoading = false
 
     private let teal = Color(red: 0.16, green: 0.71, blue: 0.55)
 
@@ -46,7 +50,6 @@ struct RequestLogView: View {
             .padding(.vertical, 5)
             .background(Color(nsColor: .controlBackgroundColor).opacity(0.5), in: RoundedRectangle(cornerRadius: 6))
 
-            // Custom segmented filter
             HStack(spacing: 0) {
                 ForEach(StatusFilter.allCases, id: \.self) { f in
                     Button {
@@ -80,6 +83,8 @@ struct RequestLogView: View {
 
             Button {
                 service.clearRequestLogs()
+                expandedRow = nil
+                detailData = nil
             } label: {
                 Image(systemName: "trash")
                     .font(.caption)
@@ -142,7 +147,6 @@ struct RequestLogView: View {
     private var logTable: some View {
         ScrollView {
             LazyVStack(spacing: 0) {
-                // 表头
                 HStack(spacing: 0) {
                     headerCell("状态", width: 54)
                     headerCell("方法", width: 50)
@@ -158,7 +162,13 @@ struct RequestLogView: View {
                 Divider()
 
                 ForEach(filteredLogs) { entry in
-                    logRow(entry)
+                    VStack(spacing: 0) {
+                        logRow(entry)
+
+                        if expandedRow == entry.id {
+                            detailPanel(entry)
+                        }
+                    }
                 }
             }
         }
@@ -181,7 +191,12 @@ struct RequestLogView: View {
 
     private func logRow(_ entry: RequestLogEntry) -> some View {
         HStack(spacing: 0) {
-            // 状态码
+            // 展开指示器
+            Image(systemName: expandedRow == entry.id ? "chevron.down" : "chevron.right")
+                .font(.system(size: 8, weight: .semibold))
+                .foregroundStyle(entry.rid != nil ? .tertiary : .quaternary)
+                .frame(width: 16)
+
             Text("\(entry.statusCode)")
                 .font(.system(.caption, design: .monospaced, weight: .semibold))
                 .padding(.horizontal, 7)
@@ -195,32 +210,27 @@ struct RequestLogView: View {
                 .foregroundStyle(entry.statusCode >= 400 ? .red : teal)
                 .frame(width: 54, alignment: .leading)
 
-            // 方法
             Text(entry.method)
                 .font(.system(.caption, design: .monospaced, weight: .medium))
                 .foregroundStyle(.secondary)
                 .frame(width: 50, alignment: .leading)
 
-            // 路径
             Text(entry.path)
                 .font(.system(.caption, design: .monospaced))
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-            // 模型
             Text(entry.model)
                 .font(.system(.caption, design: .monospaced))
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-            // 耗时
             Text(entry.durationText)
                 .font(.system(.caption, design: .monospaced))
                 .foregroundStyle(.tertiary)
                 .frame(width: 72, alignment: .leading)
 
-            // 时间
             Text(entry.timeText)
                 .font(.system(.caption, design: .monospaced))
                 .foregroundStyle(.tertiary)
@@ -229,16 +239,218 @@ struct RequestLogView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 7)
         .background(
-            hoveredRow == entry.id
-                ? teal.opacity(0.04)
-                : Color.clear
+            expandedRow == entry.id
+                ? teal.opacity(0.06)
+                : (hoveredRow == entry.id ? teal.opacity(0.03) : Color.clear)
         )
+        .contentShape(Rectangle())
+        .onTapGesture {
+            withAnimation(.easeInOut(duration: 0.15)) {
+                if expandedRow == entry.id {
+                    expandedRow = nil
+                    detailData = nil
+                } else {
+                    expandedRow = entry.id
+                    detailData = nil
+                    fetchDetail(entry)
+                }
+            }
+        }
         .onHover { isHovered in
             hoveredRow = isHovered ? entry.id : nil
         }
         .overlay(alignment: .bottom) {
+            if expandedRow != entry.id {
+                Divider().opacity(0.3)
+            }
+        }
+    }
+
+    // MARK: - Detail Panel
+
+    @ViewBuilder
+    private func detailPanel(_ entry: RequestLogEntry) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            if detailLoading {
+                HStack {
+                    ProgressView().controlSize(.small)
+                    Text("加载中…")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(16)
+            } else if let detail = detailData {
+                // Summary header
+                HStack(spacing: 16) {
+                    detailBadge("消息数", value: "\(detail.messagesCount)")
+                    detailBadge("工具数", value: "\(detail.toolsCount)")
+                    if !detail.model.isEmpty {
+                        detailBadge("模型", value: detail.model)
+                    }
+                    Spacer()
+                    Button {
+                        NSPasteboard.general.clearContents()
+                        NSPasteboard.general.setString(detail.fullJSON, forType: .string)
+                    } label: {
+                        Label("复制完整请求", systemImage: "doc.on.doc")
+                            .font(.caption2)
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.mini)
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 12)
+                .padding(.bottom, 8)
+
+                // System prompt
+                if !detail.systemPreview.isEmpty {
+                    detailSection("System Prompt") {
+                        Text(detail.systemPreview)
+                            .font(.system(.caption2, design: .monospaced))
+                            .foregroundStyle(Color.white.opacity(0.7))
+                            .textSelection(.enabled)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(10)
+                            .background(Color(red: 0.11, green: 0.12, blue: 0.14), in: RoundedRectangle(cornerRadius: 6))
+                    }
+                }
+
+                // Messages (last 10)
+                if !detail.messages.isEmpty {
+                    detailSection("最近 \(detail.messages.count) 条消息") {
+                        VStack(spacing: 2) {
+                            ForEach(Array(detail.messages.enumerated()), id: \.offset) { idx, msg in
+                                HStack(alignment: .top, spacing: 8) {
+                                    Text(msg.role)
+                                        .font(.system(.caption2, design: .monospaced, weight: .semibold))
+                                        .foregroundStyle(roleColor(msg.role))
+                                        .frame(width: 55, alignment: .trailing)
+
+                                    Text(msg.preview)
+                                        .font(.system(.caption2, design: .monospaced))
+                                        .foregroundStyle(Color.white.opacity(0.6))
+                                        .lineLimit(3)
+                                        .textSelection(.enabled)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                }
+                                .padding(.vertical, 4)
+                                .padding(.horizontal, 10)
+                                .background(
+                                    idx % 2 == 0 ? Color.clear : Color.white.opacity(0.02)
+                                )
+                            }
+                        }
+                        .background(Color(red: 0.11, green: 0.12, blue: 0.14), in: RoundedRectangle(cornerRadius: 6))
+                    }
+                }
+            } else if entry.rid == nil {
+                Text("此请求无详细数据（需要重启服务以启用请求历史）")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+                    .padding(16)
+            } else {
+                Text("加载失败")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+                    .padding(16)
+            }
+        }
+        .padding(.bottom, 8)
+        .background(teal.opacity(0.03))
+        .overlay(alignment: .bottom) {
             Divider().opacity(0.3)
         }
+    }
+
+    private func detailBadge(_ label: String, value: String) -> some View {
+        HStack(spacing: 4) {
+            Text(label)
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+            Text(value)
+                .font(.caption2.weight(.medium))
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(teal.opacity(0.1), in: RoundedRectangle(cornerRadius: 4))
+                .foregroundStyle(teal)
+        }
+    }
+
+    private func detailSection(_ title: String, @ViewBuilder content: () -> some View) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(.caption2.weight(.medium))
+                .foregroundStyle(.secondary)
+            content()
+        }
+        .padding(.horizontal, 16)
+        .padding(.bottom, 8)
+    }
+
+    private func roleColor(_ role: String) -> Color {
+        switch role {
+        case "system": return .orange
+        case "user": return teal
+        case "assistant": return Color(red: 0.55, green: 0.82, blue: 0.96)
+        case "tool": return Color(red: 0.78, green: 0.58, blue: 0.96)
+        default: return .secondary
+        }
+    }
+
+    // MARK: - Fetch Detail
+
+    private func fetchDetail(_ entry: RequestLogEntry) {
+        guard let rid = entry.rid else { return }
+        let entryId = entry.id
+        detailLoading = true
+
+        let urlStr = "\(ConfigManager.shared.baseURL)/request-history/\(rid)"
+        guard let url = URL(string: urlStr) else {
+            detailLoading = false
+            return
+        }
+
+        URLSession.shared.dataTask(with: url) { data, _, error in
+            DispatchQueue.main.async {
+                guard expandedRow == entryId else { return }
+                detailLoading = false
+                guard let data = data, error == nil else { return }
+                guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return }
+
+                let summary = json["summary"] as? [String: Any] ?? [:]
+                let messages = (summary["messages"] as? [[String: Any]] ?? []).map {
+                    MessagePreview(
+                        role: $0["role"] as? String ?? "",
+                        preview: $0["preview"] as? String ?? ""
+                    )
+                }
+
+                // Also fetch full JSON for copy
+                let fullUrlStr = "\(ConfigManager.shared.baseURL)/request-history/\(rid)/full"
+                if let fullUrl = URL(string: fullUrlStr) {
+                    URLSession.shared.dataTask(with: fullUrl) { fullData, _, _ in
+                        var fullJSON = ""
+                        if let fullData = fullData,
+                           let fullObj = try? JSONSerialization.jsonObject(with: fullData),
+                           let prettyData = try? JSONSerialization.data(withJSONObject: fullObj, options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]) {
+                            fullJSON = String(data: prettyData, encoding: .utf8) ?? ""
+                        }
+
+                        DispatchQueue.main.async {
+                            guard self.expandedRow == entryId else { return }
+                            self.detailData = RequestDetail(
+                                model: summary["model"] as? String ?? "",
+                                messagesCount: summary["messages_count"] as? Int ?? 0,
+                                toolsCount: summary["tools_count"] as? Int ?? 0,
+                                systemPreview: summary["system_preview"] as? String ?? "",
+                                messages: messages,
+                                fullJSON: fullJSON
+                            )
+                        }
+                    }.resume()
+                }
+            }
+        }.resume()
     }
 
     // MARK: - 过滤
@@ -258,4 +470,20 @@ struct RequestLogView: View {
         }
         return result
     }
+}
+
+// MARK: - Models
+
+struct RequestDetail {
+    let model: String
+    let messagesCount: Int
+    let toolsCount: Int
+    let systemPreview: String
+    let messages: [MessagePreview]
+    let fullJSON: String
+}
+
+struct MessagePreview {
+    let role: String
+    let preview: String
 }

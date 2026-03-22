@@ -10,6 +10,7 @@ struct RequestLogEntry: Identifiable {
     let statusCode: Int
     let model: String
     let duration: TimeInterval
+    let rid: String?
 
     var timeText: String {
         let fmt = DateFormatter()
@@ -480,6 +481,7 @@ final class GatewayService: ObservableObject {
         let durationStr = extractValue("duration") ?? "0ms"
         let durationMs = Double(durationStr.replacingOccurrences(of: "ms", with: "")) ?? 0
         let duration = durationMs / 1000.0
+        let rid = extractValue("rid")
 
         let entry = RequestLogEntry(
             timestamp: Date(),
@@ -487,7 +489,8 @@ final class GatewayService: ObservableObject {
             path: path,
             statusCode: code,
             model: model,
-            duration: duration
+            duration: duration,
+            rid: rid
         )
         requestLogs.insert(entry, at: 0)
         if requestLogs.count > 500 { requestLogs.removeLast() }

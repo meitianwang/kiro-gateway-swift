@@ -204,7 +204,7 @@ struct DashboardView: View {
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
-                .disabled(claudeConfigResetting)
+                .disabled(claudeConfigResetting || !hasEnvBackup)
 
                 Button {
                     saveClaudeConfig()
@@ -465,6 +465,16 @@ struct DashboardView: View {
             .appendingPathComponent("settings.json")
     }
 
+    private static var envBackupURL: URL {
+        FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent(".kiro-gateway")
+            .appendingPathComponent("settings.env.backup.json")
+    }
+
+    private var hasEnvBackup: Bool {
+        FileManager.default.fileExists(atPath: Self.envBackupURL.path)
+    }
+
     private func loadClaudeConfig() {
         let url = Self.claudeSettingsURL
         guard FileManager.default.fileExists(atPath: url.path),
@@ -486,6 +496,16 @@ struct DashboardView: View {
         if let data = try? Data(contentsOf: url),
            let existing = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
             settings = existing
+        }
+
+        // Backup original env to file before first write
+        if !hasEnvBackup {
+            let backupDir = Self.envBackupURL.deletingLastPathComponent()
+            try? FileManager.default.createDirectory(at: backupDir, withIntermediateDirectories: true)
+            let wrapper: [String: Any] = ["env": settings["env"] as Any]
+            if let backupData = try? JSONSerialization.data(withJSONObject: wrapper, options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]) {
+                try? backupData.write(to: Self.envBackupURL)
+            }
         }
 
         let cfg = ConfigManager.shared
@@ -511,22 +531,40 @@ struct DashboardView: View {
     private func resetClaudeConfig() {
         claudeConfigResetting = true
         let url = Self.claudeSettingsURL
-        let dir = url.deletingLastPathComponent()
-        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        let backupURL = Self.envBackupURL
 
-        let defaultSettings: [String: Any] = [
-            "model": "opus",
-            "skipDangerousModePermissionPrompt": true
-        ]
+        guard hasEnvBackup else {
+            claudeConfigResetting = false
+            return
+        }
 
-        if let data = try? JSONSerialization.data(withJSONObject: defaultSettings, options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]) {
+        var settings: [String: Any] = [:]
+        if let data = try? Data(contentsOf: url),
+           let existing = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+            settings = existing
+        }
+
+        // Restore original env from backup file
+        if let backupData = try? Data(contentsOf: backupURL),
+           let wrapper = try? JSONSerialization.jsonObject(with: backupData) as? [String: Any] {
+            if let originalEnv = wrapper["env"] {
+                settings["env"] = originalEnv
+            } else {
+                settings.removeValue(forKey: "env")
+            }
+        } else {
+            settings.removeValue(forKey: "env")
+        }
+
+        if let data = try? JSONSerialization.data(withJSONObject: settings, options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]) {
             try? data.write(to: url)
         }
 
-        // Clear local state
-        claudeOpusModel = ""
-        claudeSonnetModel = ""
-        claudeHaikuModel = ""
+        // Remove backup file
+        try? FileManager.default.removeItem(at: backupURL)
+
+        // Reload UI state from restored config
+        loadClaudeConfig()
 
         claudeConfigResetting = false
         claudeConfigReset = true

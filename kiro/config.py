@@ -363,7 +363,9 @@ else:
     DEBUG_MODE: str = "off"
 
 # Directory for debug log files
-DEBUG_DIR: str = os.getenv("DEBUG_DIR", "debug_logs")
+# Default to ~/.kiro-gateway/debug_logs/ so it works inside read-only app bundles
+_default_debug_dir = os.path.join(os.path.expanduser("~"), ".kiro-gateway", "debug_logs")
+DEBUG_DIR: str = os.getenv("DEBUG_DIR", _default_debug_dir)
 
 
 def _warn_timeout_configuration():
